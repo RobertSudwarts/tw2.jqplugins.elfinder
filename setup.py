@@ -10,21 +10,26 @@ _extra_genshi = ["Genshi >= 0.3.5"]
 _extra_mako = ["Mako >= 0.1.1"]
 
 
+install_requires = [
+    "tw2.core>=2.0b2",
+    "tw2.forms",
+    "tw2.jquery",
+    'tw2.jqplugins.ui',
+    # non-tw2
+    "python-magic>=0.4.3",  # file/mime type identification
+    "Pillow>=2.0.0",        # PIL 
+    ]
+
 setup(
     name='tw2.jqplugins.elfinder',
-    version='2.0b11',
-    description='toscawidgets2 wrapper for elRTE',
+    version='0.1.0',
+    description='toscawidgets2 wrapper for elFinder',
     long_description=long_description,
-    author='Joseph Tate',
-    author_email='jtate@dragonstrider.com',
+    author='Robert Sudwarts',
+    author_email='robert.sudwarts@gmail.com',
     license='MIT',
     url='http://github.com/toscawidgets/tw2.jqplugins.elfinder',
-    install_requires=[
-        "tw2.core>=2.0b2",
-        "tw2.forms",
-        "tw2.jquery",
-        'tw2.jqplugins.ui',
-        ],
+    install_requires=install_requires,
     extras_require = {
         'genshi': _extra_genshi,
         'mako': _extra_mako,
