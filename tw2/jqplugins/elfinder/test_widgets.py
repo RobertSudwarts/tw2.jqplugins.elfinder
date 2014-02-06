@@ -75,6 +75,10 @@ class DemoTabsWidget(TabsWidget):
         resp.body = "<p>wow.. this came via <h4>ajax!</h4></p>"
         return resp
 
+    def prepare(self):
+        self.options = dict(selected=2)
+        super(DemoTabsWidget, self).prepare()
+
 # if you give the widget an id, eg demo-tebs, tw2.core.middleware
 # will register the controller you can call tw2_controllers/demo-tabs
 # and you'll bump the `request` (so, the href for the tab item would

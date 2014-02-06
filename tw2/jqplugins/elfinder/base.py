@@ -1,17 +1,19 @@
 
-# TW2 proper imports
-import tw2.core as twc
-from tw2.core.resources import encoder
+"""
+   Build common resources required by pacakge widget(s)
 
-# tw2.jquery & tw2.japlugins.ui imports
+.. note::
+   We include `jquery_ui_js` as a resource used by elfinder_js
+   (which in turn, adds `jquery_js`).  The base JqueryUIWidget
+   adds `jquery_ui_css` so there's no requirement to add this.
+"""
+
 from tw2.jquery import base as jqbase
 from tw2.jqplugins.ui import base as jquibase
 
-# import from *this* package
-from tw2.jqplugins.elfinder import defaults
+from . import defaults
 
 modname = 'tw2.jqplugins.elfinder'
-### Resources
 
 dict_img = dict(name=defaults._elfinder_name_,
                 version=defaults._elfinder_version_,
@@ -31,12 +33,10 @@ elfinder_css = jqbase.jQueryPluginCSSLink(
     )
 
 elfinder_js = jqbase.jQueryPluginJSLink(
+    resources = [jquibase.jquery_ui_js],
     name=defaults._elfinder_name_,
     basename='%s.%s' % (defaults._elfinder_basename_, defaults._elfinder_debug_),
     version=defaults._elfinder_version_,
     modname = modname,
     )
-
-
-
 

@@ -1,12 +1,9 @@
 
 import webob
-
-# tw2-proper imports
 import tw2.core as twc
-import tw2.forms as twf
 
-from tw2.jqplugins.ui import base as jquibase
-import base as elfbase
+from tw2.jqplugins.ui.base import JQueryUIWidget
+from . import base
 
 from v2_connector.connector import ElfinderConnector
 
@@ -14,31 +11,29 @@ from v2_connector.connector import ElfinderConnector
 from test_widgets import DemoWebobJSON, DemoTabsWidget
 
 
-class elFinderWidget(jquibase.JQueryUIWidget):
+class elFinderWidget(JQueryUIWidget):
 
-    resources = [jquibase.jquery_ui_js,
-                 elfbase.elfinder_css,
-                 elfbase.elfinder_js
-                 ]
+    resources = [base.elfinder_js, base.elfinder_css]
+    template = 'mako:tw2.jqplugins.elfinder.templates.widget'
+    jqmethod = "elfinder" # used by the template
 
-    opts = twc.params.Param('elfinder options', default=twc.params.Required)
-    template = 'tw2.jqplugins.elfinder.templates.widget'
+    options = twc.Param(
+        '(dict) A dict of options to pass to the widget', default={})
 
-    @classmethod
-    def request(cls, req):
-        # You could, of course, use other controllers (say a tg2 controller)
-        resp = webob.Response(request=req, content_type="text/html")
-        resp.body = "<p>wow.. this came via <h4>ajax!</h4></p>"
-        return resp
+    # @classmethod
+    # def request(cls, req):
+    #     # You could, of course, use other controllers (say a tg2 controller)
+    #     resp = webob.Response(request=req, content_type="text/html")
+    #     resp.body = "<p>wow.. this came via <h4>ajax!</h4></p>"
+    #     return resp
 
 
     def prepare(self):
 
         # we need to know the connector...
-        self.elf = ElfinderConnector(self.opts, session=None)
+        #self.elf = ElfinderConnector(self.opts, session=None)
 
-        self.options = {'URL':'/'}
-
+        #  You need some sort of assert to insist on `option`
         #if 'url' not in self.options:
         #    assert hasattr(self, 'url'), 'No url provided.   Please supply the url parameter'
         #    self.options['url'] = self.url

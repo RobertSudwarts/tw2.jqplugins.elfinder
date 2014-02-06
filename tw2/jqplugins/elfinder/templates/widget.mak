@@ -2,7 +2,7 @@
 <div ${tw.attrs(attrs=w.attrs)}></div>
 <script type="text/javascript">
 $(function() {
-    $("#${w.selector}").elfinder(${w.options});
+    $('#${w.selector}').${w.jqmethod}( ${w.options|n} );
 });
 </script>
 
