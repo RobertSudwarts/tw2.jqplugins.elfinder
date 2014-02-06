@@ -1,47 +1,51 @@
 import os, re, time, urllib
+from tg.i18n import ugettext as _
+
+from utils.volumes import instantiate_driver
 
 from exceptions import (ElfinderErrorMessages, VolumeNotFoundError,
                         DirNotFoundError, FileNotFoundError, NamedError,
                         NotAnImageError)
 
-#from django.utils.translation import ugettext as _
-from tg.i18n import ugettext as _
-#from utils.volumes import instantiate_driver
 
 class ElfinderConnector(object):
-    """
-    A python implementation of the
-    `elfinder connector api v2.0  <https://github.com/Studio-42/elFinder/wiki/Client-Server-API-2.0>`_. At the moment, it supports all elfinder commands except from ``netDrivers``.
+    """A python implementation of the `elfinder connector api v2.0
+
+    <https://github.com/Studio-42/elFinder/wiki/Client-Server-API-2.0>`_.
+    At the moment, it supports all elfinder commands except from ``netDrivers``.
     """
 
     _version = '2.0'
     _commit = 'b0144a0'
     _netDrivers = {}
     _commands = {
-        'open' : { 'target' : False, 'tree' : False, 'init' : False, 'mimes' : False },
-        'ls' : { 'target' : True, 'mimes' : False },
-        'tree' : { 'target' : True },
-        'parents' : { 'target' : True },
-        'tmb' : { 'targets' : True },
-        'file' : { 'target' : True, 'download' : False, 'request' : False },
-        'size' : { 'targets' : True },
-        'mkdir' : { 'target' : True, 'name' : True },
-        'mkfile' : { 'target' : True, 'name' : True, 'mimes' : False },
-        'rm' : { 'targets' : True },
-        'rename' : { 'target' : True, 'name' : True, 'mimes' : False },
-        'duplicate' : { 'targets' : True },
-        'paste' : { 'dst' : True, 'targets' : True, 'cut' : False, 'mimes' : False },
-        'upload' : { 'target' : True, 'FILES' : True, 'mimes' : False, 'html' : False },
-        'get' : { 'target' : True },
-        'put' : { 'target' : True, 'content' : '', 'mimes' : False },
-        'archive' : { 'targets' : True, 'type_' : True, 'mimes' : False },
-        'extract' : { 'target' : True, 'mimes' : False },
-        'search' : { 'q' : True, 'mimes' : False },
-        'info' : { 'targets' : True, 'options': False },
-        'dim' : { 'target' : True },
-        'resize' : {'target' : True, 'width' : True, 'height' : True, 'mode' : False, 'x' : False, 'y' : False, 'degree' : False },
+        'open': dict(target=False, tree=False, init=False, mimes=False),
+        'ls':   dict(target=True, mimes=False),
+        'tree': dict(target=True),
+        'parents': dict(target=True),
+        'tmb': dict(targets=True),
+        'file': dict(target=True, download=False, request=False),
+        'size': dict(targets=True),
+        'mkdir': dict(target=True, name=True),
+        'mkfile': dict(target=True, name=True, mimes=False),
+        'rm': dict(targets=True),
+        'rename': dict(target=True, name=True, mimes=False),
+        'duplicate': dict(targets=True),
+        'paste': dict(dst=True, targets=True, cut=False, mimes=False),
+        'upload': dict(target=True, FILES=True, mimes=False, html=False),
+        'get': dict(target=True),
+        'put': dict(target=True, content='', mimes=False),
+        'archive': dict(targets=True, type_=True, mimes=False),
+        'extract': dict(target=True, mimes=False),
+        'search': dict(q=True, mimes=False),
+        'info': dict(targets=True, options=False),
+        'dim': dict(target=True),
+        'resize': dict(arget=True, width=True, height=True, mode=False,
+                       x=False, y=False, degree=False),
         #TODO: implement netmount
-        'netmount'  : { 'protocol' : True, 'host' : True, 'path' : False, 'port' : False, 'user' : True, 'pass' : True, 'alias' : False, 'options' : False}
+        # note: this dict style used as `pass` won't `pass`
+        'netmount': {'protocol':True, 'host':True, 'path':False, 'port':False,
+                     'user':True, 'pass':True, 'alias':False, 'options':False}
     }
 
     def __init__(self, opts, session = None):

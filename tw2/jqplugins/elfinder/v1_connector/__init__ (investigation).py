@@ -20,7 +20,7 @@ class file_streamer(object):
 
 def make_app(app, options, basepath):
 
-
+    # the connector gets set up here with its initial options...
     elf = elFinder.connector(options)
 
     def elfinder_connector(environ, start_response):
@@ -49,4 +49,6 @@ def make_app(app, options, basepath):
             else:
                 start_response("404 NOT FOUND", [('Content-Type', 'text/html')])
                 return ["No handler found for that request",]
+
+    # the elfinder "function" is returned...
     return elfinder_connector

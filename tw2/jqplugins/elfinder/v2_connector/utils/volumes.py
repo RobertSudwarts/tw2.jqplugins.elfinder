@@ -8,6 +8,11 @@ def instantiate_driver(root_options):
     """Instantiate and return a  driver, given its ``root_options``."""
 
     class_ = root_options['driver'] if 'driver' in root_options else ''
+    # replaces the ternary..
+    if 'driver' in root_options:
+        class_ = root_options['driver']
+    else:
+        class_ = ''
 
     if 'driverInstance' in root_options \
       and isinstance(root_options['driverInstance'], class_):
