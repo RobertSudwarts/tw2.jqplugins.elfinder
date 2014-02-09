@@ -19,9 +19,15 @@ I'm not happy with any of this....
 from beaker.cache import CacheManager
 from beaker.util import parse_cache_config_options
 
+# cache_opts = {
+#     'cache.type': 'ext:memcached',
+#     'cache.url': '127.0.0.1:11211',
+#     'cache.data_dir': '/tmp/cache/data',
+#     'cache.lock_dir': '/tmp/cache/lock'
+# }
+
 cache_opts = {
-    'cache.type': 'ext:memcached',
-    'cache.url': '127.0.0.1:11211',
+    'cache.type': 'file',
     'cache.data_dir': '/tmp/cache/data',
     'cache.lock_dir': '/tmp/cache/lock'
 }

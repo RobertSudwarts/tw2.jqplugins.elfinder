@@ -5,9 +5,9 @@ from importlib import import_module
 # from elfinder.conf import settings as ls
 
 def instantiate_driver(root_options):
-    """Instantiate and return a  driver, given its ``root_options``."""
+    """Instantiate and return a driver, given its ``root_options``."""
 
-    class_ = root_options['driver'] if 'driver' in root_options else ''
+    #class_ = root_options['driver'] if 'driver' in root_options else ''
     # replaces the ternary..
     if 'driver' in root_options:
         class_ = root_options['driver']

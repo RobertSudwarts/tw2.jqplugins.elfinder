@@ -8,16 +8,6 @@ from exceptions import (ElfinderErrorMessages, VolumeNotFoundError,
                         NotAnImageError)
 
 
-class ELF(object):
-    '''demonstrates that you can grab hold of
-       an object in the widget class, from within
-       the request..
-    '''
-    _version = '2.0'
-    var = None
-    def __init__(self):
-        self.var = "Oh!! So you can do this!!! :D"
-
 
 class ElfinderConnector(object):
     """A python implementation of the `elfinder connector api v2.0

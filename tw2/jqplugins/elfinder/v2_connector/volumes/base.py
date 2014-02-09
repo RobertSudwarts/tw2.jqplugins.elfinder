@@ -17,6 +17,11 @@ from .. exceptions import ElfinderErrorMessages, FileNotFoundError, \
 
 # this is where we're going to have a problem...
 #from django.core.cache import cache
+
+# so it's not the 'cache' that's being imported here but a module
+# containing various functions -- -get_cache() being the first
+# 'problem'
+
 # we've replace the django cache mechanism with our
 # own rubbish one...
 from .cache import cache
@@ -1142,8 +1147,17 @@ class VolumeDriver(object):
         """
 
         cache_key = 'elfinder::stat::%s' % self.encode(path)
-        stat_cache = cache.get(cache_key, None)
-        root_cache = cache.get('elfinder::stat::%sroot' % self.id())
+        # so far so so good...
+
+        try:
+            stat_cache = cache.get_value(cache_key)
+        except KeyError:
+            stat_cache = None
+
+        try:
+            root_cache = cache.get_value('elfinder::stat::%sroot' % self.id())
+        except KeyError:
+            root_cache = None
 
         if stat_cache is None or root_cache != self._root:
             #print cache_key, stat_cache, root_cache, self._root
@@ -1197,13 +1211,16 @@ class VolumeDriver(object):
 
             stat_cache = stat
 
+            # self._options['cache'] == 600 (ie ten minutes)
             if self._options['cache']:
-                cache.set(cache_key, stat_cache, self._options['cache'])
+                cache.set_value(cache_key, stat_cache)
                 self.logger.debug('%s: Caching STAT %s' % (self.id(), path))
+
             if root_cache != self._root:
-                cache.set('elfinder::stat::%sroot' % self.id(), self._root, 60 * 60 * 24 * 10)
+                cache.set_value('elfinder::stat::%sroot' % self.id(), self._root)
 
         return stat_cache
+
 
     def mimetype(self, path, name = ''):
         """
@@ -1787,24 +1804,37 @@ class VolumeDriver(object):
         Get the cached stat info for this directory ``path``, if any.
         """
         cache_key = 'elfinder::listdir::%s' % self.encode(path)
-        dir_cache = cache.get(cache_key, None)
-        root_cache = cache.get('elfinder::stat::%sroot' % self.id())
+
+        try:
+            dir_cache = cache.get(cache_key)
+        except KeyError:
+            dir_cache = None
+
+        try:
+            root_cache = cache.get('elfinder::stat::%sroot' % self.id())
+        except KeyError:
+            root_cache = None
 
         if dir_cache is None or root_cache != self._root:
             dir_cache = self._scandir(path)
             if self._options['cache']:
                 self.logger.debug('%s: Caching DIR %s' % (self.id(), path))
-                cache.set(cache_key, dir_cache, self._options['cache'])
+                cache.set_value(cache_key, dir_cache)
             if root_cache != self._root:
-                cache.set('elfinder::stat::%sroot' % self.id(), self._root, 60 * 60 * 24 * 10)
+                cache.set_value('elfinder::stat::%sroot' % self.id(), self._root)
 
         return dir_cache
+
 
     def _clear_cached_dir(self, path):
         """
         Clear cache for this directory ``path``.
         """
-        cache.delete('elfinder::listdir::%s' % self.encode(path))
+        try:
+            cache.delete('elfinder::listdir::%s' % self.encode(path))
+        except:
+            self.logger.warn("error deleting cache")
+
         #clear the stat record as well
         self._clear_cached_stat(path)
 
