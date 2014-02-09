@@ -8,6 +8,17 @@ from exceptions import (ElfinderErrorMessages, VolumeNotFoundError,
                         NotAnImageError)
 
 
+class ELF(object):
+    '''demonstrates that you can grab hold of
+       an object in the widget class, from within
+       the request..
+    '''
+    _version = '2.0'
+    var = None
+    def __init__(self):
+        self.var = "Oh!! So you can do this!!! :D"
+
+
 class ElfinderConnector(object):
     """A python implementation of the `elfinder connector api v2.0
 
@@ -48,30 +59,39 @@ class ElfinderConnector(object):
                      'user':True, 'pass':True, 'alias':False, 'options':False}
     }
 
-    def __init__(self, opts, session = None):
+    def __init__(self, opts, session=None):
+        '''
+
+        .. note::  the `session` parameter is not used.
+        '''
+
 
         if not 'roots' in opts:
+            print "roots was not found in opts"
             opts['roots'] = []
+        else:
+            print "we have roots..."
 
         self._volumes = {}
         self._default = None
         self._loaded = False
-        self._session = session
+        #self._session = session
         self._time =  time.time()
         self._debug = 'debug' in opts and opts['debug']
         self._uploadDebug = ''
         self._mountErrors = []
 
         #TODO: Use signals instead of the original connector's binding mechanism
-
         #for root in self.getNetVolumes():
         #    opts['roots'].append(root)
 
-        for o in opts['roots']:
+        for i, o in enumerate(opts['roots']):
 
             try:
                 volume = instantiate_driver(o)
             except Exception as e:
+                print e
+                print "exception instantiating driver %d: continuing..." % i
                 self._mountErrors.append(e.__unicode__())
                 continue
 

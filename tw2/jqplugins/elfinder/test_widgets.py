@@ -55,7 +55,7 @@ some_items = [
 
 ajaxified_tabs_items = [{'label': v[0], 'content': v[1]} for v in some_items]
 ajaxified_tabs_items[2]['label'] += ' (via ajax)'
-#ajaxified_tabs_items[2]['href'] = '/tw2_controllers/ajaxtab/'
+#ajaxified_tabs_items[2]['href'] = '/ajaxtab/'
 ajaxified_tabs_items[2]['href'] = '/tw2_controllers/xyz/'
 del ajaxified_tabs_items[2]['content']
 
@@ -85,4 +85,4 @@ class DemoTabsWidget(TabsWidget):
 # have to call this accordingly).  However, by registering the controller
 # (as below) the href can call it... (look at it closely and it makes sense)
 # this is required here...
-twc.register_controller(DemoTabsWidget, 'ajaxtab')
+#twc.register_controller(DemoTabsWidget, 'ajaxtab')

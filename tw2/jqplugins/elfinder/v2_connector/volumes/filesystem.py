@@ -6,9 +6,10 @@ except ImportError:
 from hashlib import md5
 
 from base import VolumeDriver
-from .. conf import settings
-from .. exceptions import ElfinderErrorMessages, NotAnImageError, \
+
+from tw2.jqplugins.elfinder.v2_connector.exceptions import ElfinderErrorMessages, NotAnImageError, \
                           DirNotFoundError
+from tw2.jqplugins.elfinder.v2_connector.conf import settings
 
 class LocalFileSystemVolumeDriver(VolumeDriver):
     """Local filesystem driver"""
