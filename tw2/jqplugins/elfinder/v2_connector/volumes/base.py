@@ -1797,7 +1797,7 @@ class VolumeDriver(object):
         """
         Clear the cache for this file ``path``.
         """
-        cache.delete('elfinder::stat::%s' % self.encode(path))
+        cache.remove_value('elfinder::stat::%s' % self.encode(path))
 
     def _get_cached_dir(self, path):
         """
@@ -1831,7 +1831,7 @@ class VolumeDriver(object):
         Clear cache for this directory ``path``.
         """
         try:
-            cache.delete('elfinder::listdir::%s' % self.encode(path))
+            cache.remove_value('elfinder::listdir::%s' % self.encode(path))
         except:
             self.logger.warn("error deleting cache")
 
