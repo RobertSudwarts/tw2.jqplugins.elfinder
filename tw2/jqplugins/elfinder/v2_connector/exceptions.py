@@ -59,7 +59,9 @@ class ElfinderErrorMessages(object):
 
 class VolumeNotFoundError(Exception):
     def __init__(self):
-        super(VolumeNotFoundError, self).__init__(_("Volume could not be found"))
+        #super(VolumeNotFoundError, self).__init__(_("Volume could not be found"))
+        # remoeved ugettext "_"
+        super(VolumeNotFoundError, self).__init__("Volume could not be found")
 
 class FileNotFoundError(Exception):
     def __init__(self):
@@ -85,4 +87,5 @@ class NamedError(Exception):
 
 class NotAnImageError(Exception):
     def __init__(self):
-        super(NotAnImageError, self).__init__(_('This is not a valid image file'))
+        #super(NotAnImageError, self).__init__(_('This is not a valid image file'))
+        super(NotAnImageError, self).__init__('This is not a valid image file')

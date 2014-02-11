@@ -1,5 +1,6 @@
 
 import webob
+
 import tw2.core as twc
 import logging
 from pprint import pprint
@@ -33,17 +34,17 @@ class elFinderWidget(JQueryUIWidget):
 
     #elfinder_connector = None
     elfinder_connector = twc.Param(
-        'the elfinder connector object', default=None)
+            'the elfinder connector object', default=None)
 
     # controller_prefix -- you may want to add this...?
     options = twc.Param(
-        '(dict) A dict of options to pass to the widget', default={})
+            '(dict) A dict of options to pass to the widget', default={})
 
 
     @classmethod
     def request(cls, req):
 
-        log.info("your connector is: %s", cls.elfinder_connector)
+        log.info("request: your connector is: %s", cls.elfinder_connector)
 
         if req.method == 'GET':
             req_items = req.GET.items()
@@ -75,14 +76,11 @@ class elFinderWidget(JQueryUIWidget):
                             args[arg] = req.params[name]
                 args['debug'] = req.params['debug'] if 'debug' in req.params else False
 
-            # wait just a second... it works....!
-            # so why are you getting those errors????
-
-            #data = cls.elfinder_connector.execute(cmd, **args)
+            data = cls.elfinder_connector.execute(cmd, **args)
 
             # the first time you run, nothing seems to get passed....
             # so you NEED this line until you've sorted it out.
-            data = cls.elfinder_connector.execute(u'open', target=u'llff_Lw', tree=True, init=True)
+            #data = cls.elfinder_connector.execute(u'open', target=u'llff_Lw', tree=True, init=True)
 
             resp = webob.Response(request=req, content_type="application/json")
 
@@ -93,10 +91,13 @@ class elFinderWidget(JQueryUIWidget):
         elif req.method == 'POST':
             #  for uploads...
             log.warn("You got a POST")
+            response = webob.exc.HTTPNotImplemented("POST not yet implemented")
+            return response
 
         else:
             log.warn("req.method=%s : unhandled", req.method)
-
+            response = webob.exc.HTTPNotImplemented("Unrecognised CGI method")
+            return response
 
 
 
@@ -112,12 +113,11 @@ class elFinderWidget(JQueryUIWidget):
         self.options['lang'] = 'en'
         self.options['resizable'] = False
         # you may require this later
-        #self.options['customData']= {'entity_type':'student',
-        #                            'entity_id': 'blahblahblah'}
+        # self.options['customData']= {'entity_type':'student',
+        #                              'entity_id': 'blahblahblah'}
 
 
         super(elFinderWidget, self).prepare()
-        #self.elfinder_connector = ElfinderConnector(opts=self.connector_options)
 
 
 # if you give the widget an id, eg demo-tebs, tw2.core.middleware

@@ -203,9 +203,11 @@ class ElfinderConnector(object):
             An array with following elements:
                 :cwd:          opened directory information
                 :options:      the volume options
-                :files:        opened directory content [and dirs tree if 'tree' argument is ``True``]
+                :files:        opened directory content [and dirs tree if
+                               'tree' argument is ``True``]
                 :api:          api version (if 'init' argument is ``True``)
-                :uplMaxSize:   The maximum allowed upload size (if 'init' argument is ``True``)
+                :uplMaxSize:   The maximum allowed upload size (if 'init'
+                               argument is ``True``)
                 :error:        on failed
 
         This method should not be invoked
@@ -236,13 +238,13 @@ class ElfinderConnector(object):
         except VolumeNotFoundError as e:
             log.info ("VolumeNotFoundError was raised")
             if not init:
-                log.info("not init...")
+                log.info("method is NOT init")
                 return {'error' : self.error(ElfinderErrorMessages.ERROR_OPEN, display_hash, e)}
             else:
-                log.info("this is `init`")
-                #on init request we can get invalid dir hash -
-                #dir which can not be opened now, but remembered by client,
-                #so open default volume
+                log.info("method is `init`")
+                # on init request we can get invalid dir hash -
+                # dir which can not be opened now, but remembered by client,
+                # so open default volume
                 log.warn("Using default volume: %s", self._default)
                 volume = self._default
 
