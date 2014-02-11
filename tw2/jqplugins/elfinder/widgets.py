@@ -20,7 +20,6 @@ except:
 log = logging.getLogger(__name__)
 
 
-
 class elFinderWidget(JQueryUIWidget):
 
     # demonstrates that you can add styles etc to the div.
@@ -29,7 +28,12 @@ class elFinderWidget(JQueryUIWidget):
     resources = [base.elfinder_js, base.elfinder_css]
     template = 'mako:tw2.jqplugins.elfinder.templates.widget'
 
-    elfinder_connector = twc.Param("the elfinder connector object", default=None)
+    #connector_options = twc.Param(
+    #    '(dict) A dict of options to pass to the widget', default={})
+
+    #elfinder_connector = None
+    elfinder_connector = twc.Param(
+        'the elfinder connector object', default=None)
 
     # controller_prefix -- you may want to add this...?
     options = twc.Param(
@@ -39,47 +43,81 @@ class elFinderWidget(JQueryUIWidget):
     @classmethod
     def request(cls, req):
 
-        # so if we declare elf, we seem to be
-        # able to get to it here....
-        log.info("connector version: %s", cls.elfinder_connector._version)
-        log.info("connector commit: %s", cls.elfinder_connector._commit)
+        log.info("your connector is: %s", cls.elfinder_connector)
 
-        #log.warn( "request : %s", req)
-        #log.warn( "you have a: %s", type(cls.elf))
-        #pprint (req.environ)
-        #log.warn ("remote user: %s", req.remote_user)
+        if req.method == 'GET':
+            req_items = req.GET.items()
+            # `params` is a nice list of tuples -- but you're better off with req.params
+            #log.info( "request parameters: %s", req_items )
 
-        params = req.GET.items()
-        # `params` is a nice list of tuples
-        log.info( "request parameters: %s", params )
-        # gies you GET([(u'cmd', u'open'), (u'target', u''), (u'init', u'1'),
-        #        (u'tree', u'1'), (u'_', u'1391791794412')])
+            try:
+                cmd = req.params['cmd']
+            except KeyError:
+                cmd = 'open'
 
-        # Well, the data returned has to look like this... !
-        #data = {"files": [{"dirs": 1, "hash": "llff_Lw", "name": "ElfinderFiles", "read": 1, "volumeid": "llff_", "ts": 1391529220.7605991, "write": 1, "mime": "directory", "locked": 1, "hidden": 0, "size": "unknown"}, {"hash": "llff_SGVpZHlL", "name": "HeidyK", "read": 1, "ts": 1391529232.552599, "write": 1, "mime": "directory", "phash": "llff_Lw", "locked": 0, "hidden": 0, "size": "unknown"}, {"hash": "llff_dGVzdF9zdHVkZW50XzM", "name": "test_student_3", "read": 1, "ts": 1391779717.6250036, "write": 1, "mime": "directory", "phash": "llff_Lw", "locked": 0, "hidden": 0, "size": "unknown"}, {"hash": "llff_TG9va3NMaW5lQW5Pcmdhbi5wZGY", "name": "LooksLineAnOrgan.pdf", "read": 1, "ts": 1391527013.0, "write": 1, "mime": "application/pdf", "phash": "llff_Lw", "locked": 0, "hidden": 0, "size": 109218}, {"hash": "llff_SGFtbW9uZE9yZ2FuLnBkZg", "name": "HammondOrgan.pdf", "read": 1, "ts": 1391527013.6926498, "write": 1, "mime": "application/pdf", "phash": "llff_Lw", "locked": 0, "hidden": 0, "size": 109218}, {"hash": "llff_YWxsX3Rlc3RzLnR4dA", "name": "all_tests.txt", "read": 1, "ts": 1391527366.7286417, "write": 1, "mime": "text/x-python", "phash": "llff_Lw", "locked": 0, "hidden": 0, "size": 161577}, {"dim": "158x204", "hash": "llff_Y2hhcmxpZXdfMS5qcGc", "name": "charliew_1.jpg", "read": 1, "ts": 1391528898.1966066, "write": 1, "tmb": "llff_Y2hhcmxpZXdfMS5qcGc1391528898.2.png", "mime": "image/jpeg", "phash": "llff_Lw", "locked": 0, "hidden": 0, "size": 5383}, {"hash": "llff_dGVzdC50eHQ", "name": "test.txt", "read": 1, "ts": 1391527382.7806413, "write": 1, "mime": "text/plain", "phash": "llff_Lw", "locked": 0, "hidden": 0, "size": 0}], "uplMaxSize": 134217728, "options": {"disabled": [], "copyOverwrite": 1, "separator": "/", "pathUrl": "/media/files/", "url": "/media/files/", "path": "Elfinder files", "tmbUrl": "/media/files/.tmb/", "archivers": {"create": ["application/x-tar", "application/x-bzip2", "application/x-gzip", "application/zip"], "extract": ["application/x-tar", "application/x-bzip2", "application/x-gzip", "application/zip"]}}, "netDrivers": [], "api": "2.0", "cwd": {"dirs": 1, "hash": "llff_Lw", "name": "Elfinder files", "read": 1, "volumeid": "llff_", "ts": 1391529220.7605991, "write": 1, "mime": "directory", "locked": 1, "hidden": 0, "size": "unknown"}}
-        data = cls.elfinder_connector.execute(u'open', target=u'llff_Lw', tree=True, init=True)
+            args = {}
+            # build args appropriate for the command/cmd
+            for name in cls.elfinder_connector.commandArgsList(cmd):
+                if name == 'request':
+                    args['request'] = req
+                elif name == 'FILES':
+                    args['FILES'] = req.FILES
+                elif name == 'targets':
+                    args[name] = req.params['targets[]']
+                else:
+                    arg = name
+                    if name.endswith('_'):
+                        name = name[:-1] # gets rid of timestamp
+                    if name in req.params:
+                        try:
+                            args[arg] = req.params[name].strip()
+                        except:
+                            args[arg] = req.params[name]
+                args['debug'] = req.params['debug'] if 'debug' in req.params else False
+
+            # wait just a second... it works....!
+            # so why are you getting those errors????
+
+            #data = cls.elfinder_connector.execute(cmd, **args)
+
+            # the first time you run, nothing seems to get passed....
+            # so you NEED this line until you've sorted it out.
+            data = cls.elfinder_connector.execute(u'open', target=u'llff_Lw', tree=True, init=True)
+
+            resp = webob.Response(request=req, content_type="application/json")
+
+            resp.body = json.dumps( data )
+
+            return resp
+
+        elif req.method == 'POST':
+            #  for uploads...
+            log.warn("You got a POST")
+
+        else:
+            log.warn("req.method=%s : unhandled", req.method)
 
 
-        resp = webob.Response(request=req, content_type="application/json")
-
-        resp.body = json.dumps( data )
-
-        return resp
 
 
     def prepare(self):
 
-        # the only 'required' parameter is the url to the controller.
-        self.options['url'] = "/tw2_controllers/" + self.id
+        #self.elfinder_connector = ElfinderConnector(opts=self.connector_options)
+        log.info("prepare: your connector is: %s", self.elfinder_connector)
 
-        # The controller has to know where/what to open as root.
-        # Essentially this would be the Entity's root directory.
-        #self.options['customData'] = {'entity_type':'student',
-        #                              'entity_id': 'blahblahblah'}
-        # something like this req'd to curtail permissions...
-        #self.options['customData'] = {'user_id': 42}
+        # the only 'required' parameter is the url to the controller, see
+        # https://github.com/Studio-42/elFinder/wiki/Client-configuration-options
+        self.options['url'] = "/tw2_controllers/" + self.id
+        self.options['rememberLastDir'] = False
+        self.options['lang'] = 'en'
+        self.options['resizable'] = False
+        # you may require this later
+        #self.options['customData']= {'entity_type':'student',
+        #                            'entity_id': 'blahblahblah'}
+
 
         super(elFinderWidget, self).prepare()
+        #self.elfinder_connector = ElfinderConnector(opts=self.connector_options)
 
 
 # if you give the widget an id, eg demo-tebs, tw2.core.middleware

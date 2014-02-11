@@ -1,3 +1,4 @@
+import logging
 import os, re, time, urllib
 from tg.i18n import ugettext as _
 
@@ -8,6 +9,7 @@ from exceptions import (ElfinderErrorMessages, VolumeNotFoundError,
                         NotAnImageError)
 
 
+log = logging.getLogger(__name__)
 
 class ElfinderConnector(object):
     """A python implementation of the `elfinder connector api v2.0
@@ -41,7 +43,7 @@ class ElfinderConnector(object):
         'search': dict(q=True, mimes=False),
         'info': dict(targets=True, options=False),
         'dim': dict(target=True),
-        'resize': dict(arget=True, width=True, height=True, mode=False,
+        'resize': dict(target=True, width=True, height=True, mode=False,
                        x=False, y=False, degree=False),
         #TODO: implement netmount
         # note: this dict style used as `pass` won't `pass`
@@ -57,10 +59,8 @@ class ElfinderConnector(object):
 
 
         if not 'roots' in opts:
-            print "roots was not found in opts"
+            log.warn("`roots` not found in opts")
             opts['roots'] = []
-        else:
-            print "we have roots..."
 
         self._volumes = {}
         self._default = None
@@ -88,6 +88,7 @@ class ElfinderConnector(object):
             id_ = volume.id()
             self._volumes[id_] = volume
             if not self._default and volume.is_readable():
+                log.info("setting `_default` to: %s", id_)
                 self._default = self._volumes[id_]
 
         self._loaded = (self._default is not None)
@@ -147,6 +148,7 @@ class ElfinderConnector(object):
         """
         Exec command and return result
         """
+
         if not self._loaded:
             return { 'error' : self.error(ElfinderErrorMessages.ERROR_CONF, ElfinderErrorMessages.ERROR_CONF_NO_VOL)}
 
@@ -184,7 +186,7 @@ class ElfinderConnector(object):
 
         if debug:
             result['debug'] = {
-                'connector' : 'yawd-elfinder',
+                'connector' : 'elfinder',
                 'time' : time.time() - self._time,
                 'upload' : self._uploadDebug,
                 'volumes' : [v.debug() for v in self._volumes.values()],
@@ -212,12 +214,15 @@ class ElfinderConnector(object):
         """
 
         if isinstance(init, basestring):
+            log.info("'init' is a basestring: %d", int(init))
             init = int(init)
 
         if isinstance(tree, basestring):
+            log.info("'tree' is a basestring: %d", int(tree))
             tree = int(tree)
 
         if not init and not target:
+            log.warn("no 'init' AND no 'target'")
             return {'error' : self.error(ElfinderErrorMessages.ERROR_INV_PARAMS, 'open')}
 
         #display name for use in error messages
@@ -225,14 +230,20 @@ class ElfinderConnector(object):
 
         #detect volume
         try:
+            log.info("trying to make volume with target: %s", target)
             volume = self._volume(target)
+
         except VolumeNotFoundError as e:
+            log.info ("VolumeNotFoundError was raised")
             if not init:
+                log.info("not init...")
                 return {'error' : self.error(ElfinderErrorMessages.ERROR_OPEN, display_hash, e)}
             else:
+                log.info("this is `init`")
                 #on init request we can get invalid dir hash -
                 #dir which can not be opened now, but remembered by client,
                 #so open default volume
+                log.warn("Using default volume: %s", self._default)
                 volume = self._default
 
         try:
@@ -756,7 +767,13 @@ class ElfinderConnector(object):
         Return root - file's owner
         """
         if hash_:
+            log.info("hash_ is present... %s", hash_)
             for id_, v in self._volumes.items():
                 if hash_.find(id_) == 0:
                     return v
+        else:
+            log.warn("no `hash_` present: VolumeNotFoundError will be raised")
+
+        # after the raise, you get
+        # TypeError: No object (name: context) has been registered for this thread
         raise VolumeNotFoundError()

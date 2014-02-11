@@ -4,8 +4,8 @@ from os.path import join
 #from tw2.jqplugins.elfinder.v2_connector.utils.accesscontrol import fs_standard_access
 #from tw2.jqplugins.elfinder.v2_connector.volumes.filesystem import LocalFileSystemVolumeDriver
 
-MEDIA_ROOT = '/home/robertsudwarts/virtualenvs/tg23elfinder/src/myproject/myproject/public/data'
-MEDIA_URL = '/data'
+# MEDIA_ROOT = '/home/robertsudwarts/virtualenvs/tg23elfinder/src/myproject/myproject/public/data'
+# MEDIA_URL = '/data'
 
 
 # TO AVOID CICRULARITY THIS NEEDS TO GO INTO ITS OWN FILE

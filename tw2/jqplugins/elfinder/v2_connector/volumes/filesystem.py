@@ -1,3 +1,4 @@
+import logging
 import os, re, time, shutil, magic
 try:
     from PIL import Image
@@ -9,7 +10,12 @@ from base import VolumeDriver
 
 from tw2.jqplugins.elfinder.v2_connector.exceptions import ElfinderErrorMessages, NotAnImageError, \
                           DirNotFoundError
-from tw2.jqplugins.elfinder.v2_connector.conf import settings
+#from tw2.jqplugins.elfinder.v2_connector.conf import settings
+
+log = logging.getLogger(__name__)
+
+MEDIA_ROOT = '/home/robertsudwarts/.virtualenvs/tg23elfinder/src/myproject/myproject/public/media'
+MEDIA_URL = '/media/'
 
 class LocalFileSystemVolumeDriver(VolumeDriver):
     """Local filesystem driver"""
@@ -20,6 +26,7 @@ class LocalFileSystemVolumeDriver(VolumeDriver):
         """
         Override the base class __init__ with specific options.
         """
+        log.warn("initialising LocalFileSystemVolumeDriver")
         super(LocalFileSystemVolumeDriver, self).__init__()
 
         #Required to count total archive files size
@@ -41,19 +48,25 @@ class LocalFileSystemVolumeDriver(VolumeDriver):
 
         try:
             rootpath = opts['path']
+            log.warn ("successfully using opts['path']")
+            log.warn ( "rootpath: %s", rootpath)
         except KeyError:
-            self._options['path'] = settings.MEDIA_ROOT
-            rootpath = settings.MEDIA_ROOT
+            log.warn("no opts['path'], using MEDIA_ROOT")
+            self._options['path'] = MEDIA_ROOT
+            rootpath = MEDIA_ROOT
 
         #attempt to create root if it does not exist
         if not os.path.exists(rootpath):
             try:
+                log.warn("rootpath doesn't exist: making")
                 os.makedirs(rootpath)
             except:
+                log.exception('unable to make rootpath')
                 raise DirNotFoundError
 
         if not 'URL' in opts or not opts['URL']:
-            self._options['URL'] = settings.MEDIA_URL
+            log.warn ("setting self._options['URL'] = MEDIA_URL")
+            self._options['URL'] = MEDIA_URL
 
         return super(LocalFileSystemVolumeDriver, self).mount(opts)
 
