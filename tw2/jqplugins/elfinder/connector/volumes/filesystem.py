@@ -8,9 +8,9 @@ from hashlib import md5
 
 from base import VolumeDriver
 
-from tw2.jqplugins.elfinder.v2_connector.exceptions import ElfinderErrorMessages, NotAnImageError, \
-                          DirNotFoundError
-#from tw2.jqplugins.elfinder.v2_connector.conf import settings
+from tw2.jqplugins.elfinder.connector.exceptions import \
+                ElfinderErrorMessages, NotAnImageError, DirNotFoundError
+#from tw2.jqplugins.elfinder.connector.conf import settings
 
 log = logging.getLogger(__name__)
 

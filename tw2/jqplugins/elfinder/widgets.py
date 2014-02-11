@@ -1,14 +1,12 @@
 
 import webob
-
-import tw2.core as twc
 import logging
-from pprint import pprint
+import tw2.core as twc
 
 from tw2.jqplugins.ui.base import JQueryUIWidget
 from . import base
 
-from v2_connector.connector import ElfinderConnector
+from connector import ElfinderConnector
 
 # just leave this here for the time being -- it'll make life easier
 from test_widgets import DemoWebobJSON, DemoTabsWidget
@@ -17,6 +15,8 @@ try:
     import simplejson as json
 except:
     import json
+
+from pprint import pprint
 
 log = logging.getLogger(__name__)
 
